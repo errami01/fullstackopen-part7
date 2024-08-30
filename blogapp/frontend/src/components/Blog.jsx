@@ -19,7 +19,7 @@ const Blog = ({ blog, update, username, remove }) => {
   };
   const handleRemoveClick = async () => {
     if (confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
-      await remove(blog.id);
+      await remove(blog);
     }
   };
   const displayRemoveButton = () => {

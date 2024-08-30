@@ -7,12 +7,19 @@ import Notification from "./components/Notification";
 import LoginForm from "./components/LoginForm";
 import BlogForm from "./components/BlogForm";
 import Togglable from "./components/Togglable ";
+import {
+  setNotification,
+  clearNotification,
+} from "./reducers/notificationReducer";
+import { useSelector, useDispatch } from "react-redux";
 
 const App = () => {
+  const dispatch = useDispatch();
+  const notification = useSelector((state) => state.notification);
   const [blogs, setBlogs] = useState([]);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [notifMessage, setNotifMessage] = useState(null);
+  // const [notifMessage, setNotifMessage] = useState(null);
   const [user, setUser] = useState(
     JSON.parse(localStorage.getItem("loggedBloglistUser")) || null,
   );
@@ -20,6 +27,17 @@ const App = () => {
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
   }, []);
+  const notify = (message, type = "success") => {
+    dispatch(
+      setNotification({
+        type,
+        message,
+      }),
+    );
+    setTimeout(() => {
+      dispatch(clearNotification(null));
+    }, 5000);
+  };
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
@@ -33,10 +51,7 @@ const App = () => {
       setUsername("");
       setPassword("");
     } catch (exception) {
-      setNotifMessage({ type: "error", message: "Wrong username or passowrd" });
-      setTimeout(() => {
-        setNotifMessage(null);
-      }, 5000);
+      notify("Wrong username or password", "error");
     }
   };
   const handleLogout = () => {
@@ -48,21 +63,11 @@ const App = () => {
       blogService.setToken(user.token);
       blogFormRef.current.toggleVisibility();
       const response = await blogService.create(newBlog);
-      setNotifMessage({
-        type: "success",
-        message: `a new blog ${response.title} by ${response.author} added`,
-      });
-      setTimeout(() => {
-        setNotifMessage(null);
-      }, 5000);
+      notify(`a new blog ${response.title} by ${response.author} added`);
       setNewBlog({ title: "", author: "", url: "" });
-      console.log(response);
       setBlogs([...blogs, response]);
     } catch (error) {
-      setNotifMessage({ type: "error", message: error.message });
-      setTimeout(() => {
-        setNotifMessage(null);
-      }, 5000);
+      notify(error.message, "error");
     }
   };
   const updateBlogLikes = async (updatedBlog) => {
@@ -74,24 +79,21 @@ const App = () => {
       );
       newBlogs[blogIndex].likes = response.likes;
       setBlogs(newBlogs);
+      notify(`You liked ${updatedBlog.title} by ${updatedBlog.author}`);
     } catch (error) {
-      setNotifMessage({ type: "error", message: error.message });
-      setTimeout(() => {
-        setNotifMessage(null);
-      }, 5000);
+      notify(error.message, "error");
     }
   };
-  const removeBlog = async (blogId) => {
+  const removeBlog = async (blog) => {
     try {
+      const blogId = blog.id;
       blogService.setToken(user.token);
       await blogService.remove(blogId);
       const newBlogs = blogs.filter((blog) => blog.id !== blogId);
       setBlogs(newBlogs);
+      notify(`Blog ${blog.title} by ${blog.author} removed`);
     } catch (error) {
-      setNotifMessage({ type: "error", message: error.message });
-      setTimeout(() => {
-        setNotifMessage(null);
-      }, 5000);
+      notify(error.message, "error");
     }
   };
   const loginForm = () => (
@@ -131,7 +133,7 @@ const App = () => {
   );
   return (
     <div>
-      <Notification notifMessage={notifMessage} />
+      <Notification notifMessage={notification} />
       {!user && loginForm()}
       {user && loggedUserElements()}
     </div>
