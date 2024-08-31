@@ -6,7 +6,7 @@ module.exports = {
     "vitest-globals/env": true,
   },
   extends: [
-    "eslint:recommended",
+    // "eslint:recommended",
     // "plugin:react/recommended",
     "plugin:react/jsx-runtime",
     "plugin:react-hooks/recommended",
