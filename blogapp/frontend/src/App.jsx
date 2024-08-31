@@ -11,15 +11,18 @@ import {
   setNotification,
   clearNotification,
 } from "./reducers/notificationReducer";
-import { addBlog, addBlogs } from "./reducers/blogReducer";
+import {
+  addBlog,
+  addBlogs,
+  removeBlog as removeReduxBlog,
+  updateLikes,
+} from "./reducers/blogReducer";
 import { useSelector, useDispatch } from "react-redux";
 
 const App = () => {
   const dispatch = useDispatch();
   const notification = useSelector((state) => state.notification);
   const blogsRedux = useSelector((state) => state.blogs);
-  const [blogs, setBlogs] = useState([]);
-  console.log(blogsRedux);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(
@@ -29,7 +32,6 @@ const App = () => {
   useEffect(() => {
     blogService.getAll().then((blogs) => {
       dispatch(addBlogs(blogs));
-      setBlogs(blogs);
     });
   }, []);
   const notify = (message, type = "success") => {
@@ -70,7 +72,6 @@ const App = () => {
       const response = await blogService.create(newBlog);
       notify(`a new blog ${response.title} by ${response.author} added`);
       setNewBlog({ title: "", author: "", url: "" });
-      setBlogs([...blogs, response]);
       dispatch(addBlog(response));
     } catch (error) {
       notify(error.message, "error");
@@ -79,12 +80,7 @@ const App = () => {
   const updateBlogLikes = async (updatedBlog) => {
     try {
       const response = await blogService.update(updatedBlog);
-      const newBlogs = [...blogs];
-      const blogIndex = newBlogs.findIndex(
-        (blog) => blog.id === updatedBlog.id,
-      );
-      newBlogs[blogIndex].likes = response.likes;
-      setBlogs(newBlogs);
+      dispatch(updateLikes(updatedBlog));
       notify(`You liked ${updatedBlog.title} by ${updatedBlog.author}`);
     } catch (error) {
       notify(error.message, "error");
@@ -95,8 +91,7 @@ const App = () => {
       const blogId = blog.id;
       blogService.setToken(user.token);
       await blogService.remove(blogId);
-      const newBlogs = blogs.filter((blog) => blog.id !== blogId);
-      setBlogs(newBlogs);
+      dispatch(removeReduxBlog(blogId));
       notify(`Blog ${blog.title} by ${blog.author} removed`);
     } catch (error) {
       notify(error.message, "error");

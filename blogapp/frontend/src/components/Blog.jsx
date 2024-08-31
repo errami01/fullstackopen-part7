@@ -11,9 +11,9 @@ const Blog = ({ blog, update, username, remove }) => {
     marginBottom: 5,
   };
   const handleLikeClick = async () => {
+    console.log(blog);
     await update({
       ...blog,
-      user: blog.user.id,
       likes: blog.likes + 1,
     });
   };
@@ -23,6 +23,7 @@ const Blog = ({ blog, update, username, remove }) => {
     }
   };
   const displayRemoveButton = () => {
+    console.log([blog.user?.username, username]);
     return (
       blog.user?.username === username && (
         <button onClick={handleRemoveClick}>remove</button>
