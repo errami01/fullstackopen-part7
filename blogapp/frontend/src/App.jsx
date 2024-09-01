@@ -17,17 +17,16 @@ import {
   removeBlog as removeReduxBlog,
   updateLikes,
 } from "./reducers/blogReducer";
+import { setUser, clearUser } from "./reducers/userReducer";
 import { useSelector, useDispatch } from "react-redux";
 
 const App = () => {
   const dispatch = useDispatch();
   const notification = useSelector((state) => state.notification);
   const blogsRedux = useSelector((state) => state.blogs);
+  const user = useSelector((state) => state.user);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("loggedBloglistUser")) || null,
-  );
   const blogFormRef = useRef();
   useEffect(() => {
     blogService.getAll().then((blogs) => {
@@ -54,7 +53,7 @@ const App = () => {
       });
       blogService.setToken(user.token);
       localStorage.setItem("loggedBloglistUser", JSON.stringify(user));
-      setUser(user);
+      dispatch(setUser(user));
       setUsername("");
       setPassword("");
     } catch (exception) {
@@ -64,6 +63,7 @@ const App = () => {
   const handleLogout = () => {
     localStorage.removeItem("loggedBloglistUser");
     setUser(null);
+    dispatch(clearUser());
   };
   const createBlog = async (newBlog, setNewBlog) => {
     try {
