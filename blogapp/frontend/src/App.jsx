@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import "./App.css";
 import Blog from "./components/Blog";
 import blogService from "./services/blogs";
@@ -8,10 +8,6 @@ import LoginForm from "./components/LoginForm";
 import BlogForm from "./components/BlogForm";
 import Togglable from "./components/Togglable ";
 import {
-  setNotification,
-  clearNotification,
-} from "./reducers/notificationReducer";
-import {
   addBlog,
   addBlogs,
   removeBlog as removeReduxBlog,
@@ -19,10 +15,12 @@ import {
 } from "./reducers/blogReducer";
 import { setUser, clearUser } from "./reducers/userReducer";
 import { useSelector, useDispatch } from "react-redux";
+import { NotificationContext } from "./contexts/notificationContext";
 
 const App = () => {
   const dispatch = useDispatch();
-  const notification = useSelector((state) => state.notification);
+  const { notification, dispatchNotification } =
+    useContext(NotificationContext);
   const blogsRedux = useSelector((state) => state.blogs);
   const user = useSelector((state) => state.user);
   const [username, setUsername] = useState("");
@@ -34,14 +32,12 @@ const App = () => {
     });
   }, []);
   const notify = (message, type = "success") => {
-    dispatch(
-      setNotification({
-        type,
-        message,
-      }),
-    );
+    dispatchNotification({
+      type: "SET_NOTIFICATION",
+      payload: { message, type },
+    });
     setTimeout(() => {
-      dispatch(clearNotification(null));
+      dispatchNotification({ type: "CLEAR_NOTIFICATION" });
     }, 5000);
   };
   const handleLogin = async (event) => {
