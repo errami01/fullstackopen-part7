@@ -7,12 +7,6 @@ import Notification from "./components/Notification";
 import LoginForm from "./components/LoginForm";
 import BlogForm from "./components/BlogForm";
 import Togglable from "./components/Togglable ";
-import {
-  addBlog,
-  addBlogs,
-  removeBlog as removeReduxBlog,
-  updateLikes,
-} from "./reducers/blogReducer";
 import { setUser, clearUser } from "./reducers/userReducer";
 import { useSelector, useDispatch } from "react-redux";
 import { NotificationContext } from "./contexts/notificationContext";
@@ -36,14 +30,37 @@ const App = () => {
   });
   const queryClient = useQueryClient();
   const newBlogMutation = useMutation({
-    mutationFn: blogService.create,
-    onSuccess: (newBlog) => {
-      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+    mutationFn: async (newBlog) => await blogService.create(newBlog),
+    onSuccess: async (newBlog) => {
+      await queryClient.invalidateQueries({ queryKey: ["blogs"] });
       notify(`a new blog ${newBlog.title} by ${newBlog.author} added`);
     },
     onError: (error) => {
       // Handle the error
       notify(error.message, "error"); // Show an error message to the user
+    },
+  });
+  const likeBlogMutation = useMutation({
+    mutationFn: (updatedBlog) => blogService.update(updatedBlog),
+    onSuccess: (updatedBlog) => {
+      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+      notify(`You liked ${updatedBlog.title} by ${updatedBlog.author}`);
+    },
+    onError: (error) => {
+      notify(error.message, "error");
+    },
+  });
+  const removeBlogMutation = useMutation({
+    mutationFn: async (blog) => {
+      await blogService.remove(blog.id);
+      return blog;
+    },
+    onSuccess: async (blog) => {
+      await queryClient.invalidateQueries({ queryKey: ["blogs"] });
+      notify(`Blog ${blog.title} by ${blog.author} removed`);
+    },
+    onError: (error) => {
+      notify(error.message, "error");
     },
   });
   const notify = (message, type = "success") => {
@@ -83,24 +100,12 @@ const App = () => {
     setNewBlog({ title: "", author: "", url: "" });
   };
   const updateBlogLikes = async (updatedBlog) => {
-    try {
-      const response = await blogService.update(updatedBlog);
-      dispatch(updateLikes(updatedBlog));
-      notify(`You liked ${updatedBlog.title} by ${updatedBlog.author}`);
-    } catch (error) {
-      notify(error.message, "error");
-    }
+    const response = await blogService.update(updatedBlog);
+    likeBlogMutation.mutate(updatedBlog);
   };
   const removeBlog = async (blog) => {
-    try {
-      const blogId = blog.id;
-      blogService.setToken(user.token);
-      await blogService.remove(blogId);
-      dispatch(removeReduxBlog(blogId));
-      notify(`Blog ${blog.title} by ${blog.author} removed`);
-    } catch (error) {
-      notify(error.message, "error");
-    }
+    blogService.setToken(user.token);
+    removeBlogMutation.mutate(blog);
   };
   const loginForm = () => (
     <LoginForm

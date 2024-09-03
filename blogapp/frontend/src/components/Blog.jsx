@@ -22,7 +22,6 @@ const Blog = ({ blog, update, username, remove }) => {
     }
   };
   const displayRemoveButton = () => {
-    console.log([blog.user?.username, username]);
     return (
       blog.user?.username === username && (
         <button onClick={handleRemoveClick}>remove</button>
