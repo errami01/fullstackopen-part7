@@ -7,16 +7,14 @@ import Notification from "./components/Notification";
 import LoginForm from "./components/LoginForm";
 import BlogForm from "./components/BlogForm";
 import Togglable from "./components/Togglable ";
-import { setUser, clearUser } from "./reducers/userReducer";
-import { useSelector, useDispatch } from "react-redux";
 import { NotificationContext } from "./contexts/notificationContext";
+import { UserContext } from "./contexts/userContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const App = () => {
-  const dispatch = useDispatch();
   const { notification, dispatchNotification } =
     useContext(NotificationContext);
-  const user = useSelector((state) => state.user);
+  const { user, dispatchUser } = useContext(UserContext);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const blogFormRef = useRef();
@@ -42,8 +40,8 @@ const App = () => {
   });
   const likeBlogMutation = useMutation({
     mutationFn: (updatedBlog) => blogService.update(updatedBlog),
-    onSuccess: (updatedBlog) => {
-      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+    onSuccess: async (updatedBlog) => {
+      await queryClient.invalidateQueries({ queryKey: ["blogs"] });
       notify(`You liked ${updatedBlog.title} by ${updatedBlog.author}`);
     },
     onError: (error) => {
@@ -80,8 +78,7 @@ const App = () => {
         password,
       });
       blogService.setToken(user.token);
-      localStorage.setItem("loggedBloglistUser", JSON.stringify(user));
-      dispatch(setUser(user));
+      dispatchUser({ type: "LOGIN", payload: user });
       setUsername("");
       setPassword("");
     } catch (exception) {
@@ -89,9 +86,7 @@ const App = () => {
     }
   };
   const handleLogout = () => {
-    localStorage.removeItem("loggedBloglistUser");
-    setUser(null);
-    dispatch(clearUser());
+    dispatchUser({ type: "LOGOUT" });
   };
   const createBlog = async (newBlog, setNewBlog) => {
     blogService.setToken(user.token);
