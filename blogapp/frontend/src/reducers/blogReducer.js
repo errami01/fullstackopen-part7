@@ -4,12 +4,6 @@ const blogSlice = createSlice({
   name: "blogs",
   initialState: [],
   reducers: {
-    addBlogs: (state, action) => {
-      return action.payload;
-    },
-    addBlog: (state, action) => {
-      state.push(action.payload);
-    },
     removeBlog: (state, action) => {
       return state.filter((blog) => blog.id !== action.payload);
     },

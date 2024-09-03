@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useRef, useContext } from "react";
 import "./App.css";
 import Blog from "./components/Blog";
 import blogService from "./services/blogs";
@@ -16,21 +16,36 @@ import {
 import { setUser, clearUser } from "./reducers/userReducer";
 import { useSelector, useDispatch } from "react-redux";
 import { NotificationContext } from "./contexts/notificationContext";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const App = () => {
   const dispatch = useDispatch();
   const { notification, dispatchNotification } =
     useContext(NotificationContext);
-  const blogsRedux = useSelector((state) => state.blogs);
   const user = useSelector((state) => state.user);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const blogFormRef = useRef();
-  useEffect(() => {
-    blogService.getAll().then((blogs) => {
-      dispatch(addBlogs(blogs));
-    });
-  }, []);
+  const {
+    data: blogs,
+    error,
+    isLoading,
+  } = useQuery({
+    queryKey: ["blogs"],
+    queryFn: blogService.getAll,
+  });
+  const queryClient = useQueryClient();
+  const newBlogMutation = useMutation({
+    mutationFn: blogService.create,
+    onSuccess: (newBlog) => {
+      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+      notify(`a new blog ${newBlog.title} by ${newBlog.author} added`);
+    },
+    onError: (error) => {
+      // Handle the error
+      notify(error.message, "error"); // Show an error message to the user
+    },
+  });
   const notify = (message, type = "success") => {
     dispatchNotification({
       type: "SET_NOTIFICATION",
@@ -62,16 +77,10 @@ const App = () => {
     dispatch(clearUser());
   };
   const createBlog = async (newBlog, setNewBlog) => {
-    try {
-      blogService.setToken(user.token);
-      blogFormRef.current.toggleVisibility();
-      const response = await blogService.create(newBlog);
-      notify(`a new blog ${response.title} by ${response.author} added`);
-      setNewBlog({ title: "", author: "", url: "" });
-      dispatch(addBlog(response));
-    } catch (error) {
-      notify(error.message, "error");
-    }
+    blogService.setToken(user.token);
+    blogFormRef.current.toggleVisibility();
+    newBlogMutation.mutate(newBlog);
+    setNewBlog({ title: "", author: "", url: "" });
   };
   const updateBlogLikes = async (updatedBlog) => {
     try {
@@ -115,17 +124,21 @@ const App = () => {
         <button onClick={handleLogout}>logout</button>
       </p>
       {blogForm()}
-      {blogsRedux
-        .toSorted((a, b) => b.likes - a.likes)
-        .map((blog) => (
-          <Blog
-            key={blog.id}
-            blog={blog}
-            update={updateBlogLikes}
-            remove={removeBlog}
-            username={user.username}
-          />
-        ))}
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        blogs
+          .toSorted((a, b) => b.likes - a.likes)
+          .map((blog) => (
+            <Blog
+              key={blog.id}
+              blog={blog}
+              update={updateBlogLikes}
+              remove={removeBlog}
+              username={user.username}
+            />
+          ))
+      )}
     </div>
   );
   return (

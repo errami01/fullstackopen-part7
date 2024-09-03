@@ -5,6 +5,7 @@ import App from "./App";
 import blogReducer from "./reducers/blogReducer";
 import userReducer from "./reducers/userReducer";
 import { NotificationProvider } from "./contexts/notificationContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const store = configureStore({
   reducer: {
@@ -12,12 +13,14 @@ const store = configureStore({
     user: userReducer,
   },
 });
-
+const queryClient = new QueryClient();
 // Render the React application to the DOM
 ReactDOM.createRoot(document.getElementById("root")).render(
   <Provider store={store}>
-    <NotificationProvider>
-      <App />
-    </NotificationProvider>
+    <QueryClientProvider client={queryClient}>
+      <NotificationProvider>
+        <App />
+      </NotificationProvider>
+    </QueryClientProvider>
   </Provider>,
 );
