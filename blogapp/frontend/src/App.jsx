@@ -10,6 +10,9 @@ import Togglable from "./components/Togglable ";
 import { NotificationContext } from "./contexts/notificationContext";
 import { UserContext } from "./contexts/userContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import Home from "./Views/Home";
+import Users from "./Views/Users";
+import { Route, Routes } from "react-router-dom";
 
 const App = () => {
   const { notification, dispatchNotification } =
@@ -116,13 +119,8 @@ const App = () => {
       <BlogForm createBlog={createBlog} />
     </Togglable>
   );
-  const loggedUserElements = () => (
-    <div data-testid="blogs-list">
-      <h1>Blogs</h1>
-      <p>
-        {user.name} {user.username} is logged in{" "}
-        <button onClick={handleLogout}>logout</button>
-      </p>
+  const homeChildren = () => (
+    <div>
       {blogForm()}
       {isLoading ? (
         <p>Loading...</p>
@@ -139,6 +137,19 @@ const App = () => {
             />
           ))
       )}
+    </div>
+  );
+  const loggedUserElements = () => (
+    <div data-testid="blogs-list">
+      <h1>Blogs</h1>
+      <p>
+        {user.name} {user.username} is logged in{" "}
+        <button onClick={handleLogout}>logout</button>
+      </p>
+      <Routes>
+        <Route path="/users" element={<Users />} />
+        <Route path="/" element={<Home>{homeChildren()}</Home>} />
+      </Routes>
     </div>
   );
   return (
