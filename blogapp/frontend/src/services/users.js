@@ -5,5 +5,8 @@ const getAll = async () => {
   const request = await axios.get(baseUrl);
   return request.data;
 };
-
-export default { getAll };
+const getById = async (id) => {
+  const request = await axios.get(baseUrl);
+  return request.data.find((User) => User.id === id);
+};
+export default { getAll, getById };

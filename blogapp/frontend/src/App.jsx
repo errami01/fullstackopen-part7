@@ -13,6 +13,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Home from "./Views/Home";
 import Users from "./Views/Users";
 import { Route, Routes } from "react-router-dom";
+import SingleUser from "./Views/SingleUser";
 
 const App = () => {
   const { notification, dispatchNotification } =
@@ -147,6 +148,7 @@ const App = () => {
         <button onClick={handleLogout}>logout</button>
       </p>
       <Routes>
+        <Route path="/users/:id" element={<SingleUser />} />
         <Route path="/users" element={<Users />} />
         <Route path="/" element={<Home>{homeChildren()}</Home>} />
       </Routes>
