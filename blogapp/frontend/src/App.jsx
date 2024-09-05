@@ -12,7 +12,7 @@ import { UserContext } from "./contexts/userContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Home from "./Views/Home";
 import Users from "./Views/Users";
-import { Route, Routes, useMatch } from "react-router-dom";
+import { Link, Route, Routes, useMatch } from "react-router-dom";
 import SingleUser from "./Views/SingleUser";
 import BlogView from "./Views/BlogView";
 
@@ -147,11 +147,20 @@ const App = () => {
     const blog = match ? blogs.find((b) => b.id === match.params.id) : null;
     return (
       <div data-testid="blogs-list">
-        <h1>Blogs</h1>
-        <p>
-          {user.name} {user.username} is logged in{" "}
-          <button onClick={handleLogout}>logout</button>
-        </p>
+        <div style={{ backgroundColor: "#D3D3D3", padding: "5px" }}>
+          <Link style={{ marginRight: "5px" }} to={"/"}>
+            blogs
+          </Link>
+          <Link style={{ marginRight: "5px" }} to={"/users"}>
+            users
+          </Link>
+          <span>
+            {user.name} {user.username} logged in{" "}
+            <button onClick={handleLogout}>logout</button>
+          </span>
+        </div>
+        <h1>Blog app</h1>
+        <p></p>
         <Routes>
           <Route path="/users/:id" element={<SingleUser />} />
           <Route
