@@ -37,4 +37,8 @@ const remove = async (blogId) => {
   };
   const response = await axios.delete(`${baseUrl}/${blogId}`, config);
 };
-export default { getAll, setToken, create, update, remove };
+const getById = async (blogId) => {
+  const request = await axios.get(baseUrl);
+  return request.data.find(blog => blog.id === blogId);
+}
+export default { getAll, setToken, create, update, remove, getById };

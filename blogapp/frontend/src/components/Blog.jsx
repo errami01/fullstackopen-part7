@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Blog = ({ blog, update, username, remove }) => {
   const [isHidden, setIsHidden] = useState(true);
@@ -30,8 +31,10 @@ const Blog = ({ blog, update, username, remove }) => {
   };
   return (
     <div style={blogStyle} className="blog-container">
-      {blog.title} {blog.author}
-      <button onClick={toggleVisibility}>{isHidden ? "view" : "hide"}</button>
+      <Link to={`blogs/${blog.id}`}>
+        {blog.title} {blog.author}
+      </Link>
+      {/* <button onClick={toggleVisibility}>{isHidden ? "view" : "hide"}</button> */}
       {!isHidden && (
         <div className="hiddenInfo">
           <p>{blog.url}</p>

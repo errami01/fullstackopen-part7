@@ -12,8 +12,9 @@ import { UserContext } from "./contexts/userContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Home from "./Views/Home";
 import Users from "./Views/Users";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useMatch } from "react-router-dom";
 import SingleUser from "./Views/SingleUser";
+import BlogView from "./Views/BlogView";
 
 const App = () => {
   const { notification, dispatchNotification } =
@@ -74,6 +75,7 @@ const App = () => {
       dispatchNotification({ type: "CLEAR_NOTIFICATION" });
     }, 5000);
   };
+  const match = useMatch("/blogs/:id");
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
@@ -140,20 +142,34 @@ const App = () => {
       )}
     </div>
   );
-  const loggedUserElements = () => (
-    <div data-testid="blogs-list">
-      <h1>Blogs</h1>
-      <p>
-        {user.name} {user.username} is logged in{" "}
-        <button onClick={handleLogout}>logout</button>
-      </p>
-      <Routes>
-        <Route path="/users/:id" element={<SingleUser />} />
-        <Route path="/users" element={<Users />} />
-        <Route path="/" element={<Home>{homeChildren()}</Home>} />
-      </Routes>
-    </div>
-  );
+  const loggedUserElements = () => {
+    if (isLoading) return <p>Loading...</p>;
+    const blog = match ? blogs.find((b) => b.id === match.params.id) : null;
+    return (
+      <div data-testid="blogs-list">
+        <h1>Blogs</h1>
+        <p>
+          {user.name} {user.username} is logged in{" "}
+          <button onClick={handleLogout}>logout</button>
+        </p>
+        <Routes>
+          <Route path="/users/:id" element={<SingleUser />} />
+          <Route
+            path="/blogs/:id"
+            element={
+              <BlogView
+                blog={blog}
+                remove={removeBlog}
+                update={updateBlogLikes}
+              />
+            }
+          />
+          <Route path="/users" element={<Users />} />
+          <Route path="/" element={<Home>{homeChildren()}</Home>} />
+        </Routes>
+      </div>
+    );
+  };
   return (
     <div>
       <Notification notifMessage={notification} />
