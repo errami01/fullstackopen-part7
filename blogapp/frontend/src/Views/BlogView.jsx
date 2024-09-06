@@ -1,8 +1,6 @@
-import { useEffect, useState, useContext } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import blogsService from "../services/blogs";
+import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/userContext";
-import { useQueryClient } from "@tanstack/react-query";
 
 const BlogView = ({ blog, update, remove }) => {
   const { user } = useContext(UserContext);
@@ -37,6 +35,12 @@ const BlogView = ({ blog, update, remove }) => {
         </p>
         <p>{blog.author}</p>
         {displayRemoveButton()}
+        <h3>comments</h3>
+        <ul>
+          {blog.comments.map((comment) => (
+            <li key={comment.id}>{comment.content}</li>
+          ))}
+        </ul>
       </div>
     )) || <div>Loading...</div>
   );
