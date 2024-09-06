@@ -15,6 +15,16 @@ import Users from "./Views/Users";
 import { Link, Route, Routes, useMatch } from "react-router-dom";
 import SingleUser from "./Views/SingleUser";
 import BlogView from "./Views/BlogView";
+import {
+  Button,
+  Container,
+  Table,
+  TableBody,
+  TableContainer,
+  TableRow,
+  Typography,
+} from "@mui/material";
+import NavigationBar from "./components/NavigationBar";
 
 const App = () => {
   const { notification, dispatchNotification } =
@@ -133,9 +143,13 @@ const App = () => {
     />
   );
   const blogForm = () => (
-    <Togglable buttonLabel="new blog" ref={blogFormRef}>
-      <BlogForm createBlog={createBlog} />
-    </Togglable>
+    <Togglable
+      buttonLabel="new blog"
+      ref={blogFormRef}
+      render={(toggleVisibility) => (
+        <BlogForm toggleVisibility={toggleVisibility} createBlog={createBlog} />
+      )}
+    />
   );
   const homeChildren = () => (
     <div>
@@ -143,17 +157,17 @@ const App = () => {
       {isLoading ? (
         <p>Loading...</p>
       ) : (
-        blogs
-          .toSorted((a, b) => b.likes - a.likes)
-          .map((blog) => (
-            <Blog
-              key={blog.id}
-              blog={blog}
-              update={updateBlogLikes}
-              remove={removeBlog}
-              username={user.username}
-            />
-          ))
+        <TableContainer>
+          <Table>
+            <TableBody>
+              {blogs
+                .toSorted((a, b) => b.likes - a.likes)
+                .map((blog) => (
+                  <Blog key={blog.id} blog={blog} />
+                ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
     </div>
   );
@@ -162,20 +176,13 @@ const App = () => {
     const blog = match ? blogs.find((b) => b.id === match.params.id) : null;
     return (
       <div data-testid="blogs-list">
-        <div style={{ backgroundColor: "#D3D3D3", padding: "5px" }}>
-          <Link style={{ marginRight: "5px" }} to={"/"}>
-            blogs
-          </Link>
-          <Link style={{ marginRight: "5px" }} to={"/users"}>
-            users
-          </Link>
-          <span>
+        <NavigationBar />
+        <div>
+          <Typography margin="30px 0">
             {user.name} {user.username} logged in{" "}
-            <button onClick={handleLogout}>logout</button>
-          </span>
+            <Button onClick={handleLogout}>logout</Button>
+          </Typography>
         </div>
-        <h1>Blog app</h1>
-        <p></p>
         <Routes>
           <Route path="/users/:id" element={<SingleUser />} />
           <Route
@@ -196,11 +203,13 @@ const App = () => {
     );
   };
   return (
-    <div>
-      <Notification notifMessage={notification} />
-      {!user && loginForm()}
-      {user && loggedUserElements()}
-    </div>
+    <Container>
+      <div>
+        <Notification notifMessage={notification} />
+        {!user && loginForm()}
+        {user && loggedUserElements()}
+      </div>
+    </Container>
   );
 };
 

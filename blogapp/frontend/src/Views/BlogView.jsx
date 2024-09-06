@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/userContext";
+import { Button, TextField } from "@mui/material";
 
 const BlogView = ({ blog, update, remove, addComment }) => {
   const { user } = useContext(UserContext);
@@ -20,7 +21,9 @@ const BlogView = ({ blog, update, remove, addComment }) => {
   const displayRemoveButton = () => {
     return (
       blog.user?.username === user.username && (
-        <button onClick={handleRemoveClick}>remove</button>
+        <Button variant="contained" color="primary" onClick={handleRemoveClick}>
+          remove
+        </Button>
       )
     );
   };
@@ -40,14 +43,28 @@ const BlogView = ({ blog, update, remove, addComment }) => {
         <p>{blog.url}</p>
         <p>
           {blog.likes} likes
-          <button onClick={handleLikeClick}>like</button>
+          <Button
+            sx={{ marginLeft: "5px" }}
+            variant="contained"
+            color="primary"
+            onClick={handleLikeClick}
+          >
+            like
+          </Button>
         </p>
         <p>{blog.author}</p>
         {displayRemoveButton()}
         <h3>comments</h3>
         <form onSubmit={handleCommentSubmit}>
-          <input type="text" name="comment" />
-          <button type="submit">add comment</button>
+          <TextField size="small" type="text" name="comment" />
+          <Button
+            sx={{ marginLeft: "5px" }}
+            variant="contained"
+            color="primary"
+            type="submit"
+          >
+            add comment
+          </Button>
         </form>
         <ul>
           {blog.comments.map((comment) => (

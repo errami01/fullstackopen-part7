@@ -1,7 +1,9 @@
+import { Alert } from "@mui/material";
+
 const Notification = ({ notifMessage }) => {
   if (!notifMessage.message) return;
   const { type, message } = notifMessage;
-  return <div className={type}>{message}</div>;
+  return <Alert severity={type}>{message}</Alert>;
 };
 
 export default Notification;

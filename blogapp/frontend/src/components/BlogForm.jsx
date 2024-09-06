@@ -1,5 +1,6 @@
+import { Button, TextField } from "@mui/material";
 import { useState } from "react";
-const BlogForm = ({ createBlog }) => {
+const BlogForm = ({ createBlog, toggleVisibility }) => {
   const [newBlog, setNewBlog] = useState({ title: "", author: "", url: "" });
   const { title, author, url } = newBlog;
 
@@ -18,39 +19,45 @@ const BlogForm = ({ createBlog }) => {
       <h1>create new</h1>
       <form onSubmit={handleSubmit} data-testid="blog-form">
         <div>
-          title
-          <input
+          <TextField
             type="text"
             value={title}
+            label="title"
             name="title"
+            size="small"
+            margin="normal"
             onChange={({ target }) => handleInputChange("title", target.value)}
-            placeholder="title"
             data-testid="title"
           />
         </div>
         <div>
-          author
-          <input
+          <TextField
             type="text"
             value={author}
             name="Author"
+            label="Tuthor"
+            size="small"
+            margin="normal"
             onChange={({ target }) => handleInputChange("author", target.value)}
-            placeholder="author"
             data-testid="author"
           />
         </div>
         <div>
-          url
-          <input
+          <TextField
             type="text"
             value={url}
             name="Url"
+            label="Url"
+            size="small"
+            margin="normal"
             onChange={({ target }) => handleInputChange("url", target.value)}
-            placeholder="url"
             data-testid="url"
           />
         </div>
-        <button type="submit">create</button>
+        <Button variant="contained" color="primary" type="submit">
+          create
+        </Button>
+        <Button onClick={toggleVisibility}>cancel</Button>
       </form>
     </div>
   );
