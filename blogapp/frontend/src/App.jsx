@@ -44,7 +44,7 @@ const App = () => {
     },
   });
   const likeBlogMutation = useMutation({
-    mutationFn: (updatedBlog) => blogService.update(updatedBlog),
+    mutationFn: async (updatedBlog) => await blogService.update(updatedBlog),
     onSuccess: async (updatedBlog) => {
       await queryClient.invalidateQueries({ queryKey: ["blogs"] });
       notify(`You liked ${updatedBlog.title} by ${updatedBlog.author}`);
@@ -61,6 +61,21 @@ const App = () => {
     onSuccess: async (blog) => {
       await queryClient.invalidateQueries({ queryKey: ["blogs"] });
       notify(`Blog ${blog.title} by ${blog.author} removed`);
+    },
+    onError: (error) => {
+      notify(error.message, "error");
+    },
+  });
+  const newCommentMutation = useMutation({
+    mutationFn: async (comment) => {
+      await blogService.addComment(comment.blog, comment);
+      return comment;
+    },
+    onSuccess: async (comment) => {
+      await queryClient.invalidateQueries({
+        queryKey: ["blogs"],
+      });
+      notify(`Your comment was added`);
     },
     onError: (error) => {
       notify(error.message, "error");
@@ -101,7 +116,7 @@ const App = () => {
     setNewBlog({ title: "", author: "", url: "" });
   };
   const updateBlogLikes = async (updatedBlog) => {
-    const response = await blogService.update(updatedBlog);
+    // const response = await blogService.update(updatedBlog);
     likeBlogMutation.mutate(updatedBlog);
   };
   const removeBlog = async (blog) => {
@@ -170,6 +185,7 @@ const App = () => {
                 blog={blog}
                 remove={removeBlog}
                 update={updateBlogLikes}
+                addComment={newCommentMutation.mutate}
               />
             }
           />

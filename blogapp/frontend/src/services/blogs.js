@@ -23,6 +23,9 @@ const update = async (blogToUpdate) => {
   const formatedBlog = {
     ...blogToUpdate,
     user: blogToUpdate.user.id,
+    comments: blogToUpdate.comments.length
+      ? [blogToUpdate.comments.map((comment) => comment.id)]
+      : [],
   };
   const response = await axios.put(
     `${baseUrl}/${formatedBlog.id}`,
@@ -39,6 +42,18 @@ const remove = async (blogId) => {
 };
 const getById = async (blogId) => {
   const request = await axios.get(baseUrl);
-  return request.data.find(blog => blog.id === blogId);
-}
-export default { getAll, setToken, create, update, remove, getById };
+  return request.data.find((blog) => blog.id === blogId);
+};
+const addComment = async (blogId, comment) => {
+  const response = await axios.post(`${baseUrl}/${blogId}/comments`, comment);
+  return response.data;
+};
+export default {
+  getAll,
+  setToken,
+  create,
+  update,
+  remove,
+  getById,
+  addComment,
+};

@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/userContext";
 
-const BlogView = ({ blog, update, remove }) => {
+const BlogView = ({ blog, update, remove, addComment }) => {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
   const handleLikeClick = async () => {
@@ -24,6 +24,15 @@ const BlogView = ({ blog, update, remove }) => {
       )
     );
   };
+  const handleCommentSubmit = async (event) => {
+    event.preventDefault();
+    const comment = event.target.comment.value;
+    addComment({
+      content: comment,
+      blog: blog.id,
+    });
+    event.target.comment.value = "";
+  };
   return (
     (blog && (
       <div>
@@ -36,6 +45,10 @@ const BlogView = ({ blog, update, remove }) => {
         <p>{blog.author}</p>
         {displayRemoveButton()}
         <h3>comments</h3>
+        <form onSubmit={handleCommentSubmit}>
+          <input type="text" name="comment" />
+          <button type="submit">add comment</button>
+        </form>
         <ul>
           {blog.comments.map((comment) => (
             <li key={comment.id}>{comment.content}</li>
